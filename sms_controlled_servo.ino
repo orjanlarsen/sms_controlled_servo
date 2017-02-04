@@ -39,14 +39,19 @@ void setup()
   servo1.write(90);
   delay(500);
   servo1.detach();
+
+  //make shure shield is off
+
+  
+    poweroffsim900();
   
     //gms shield  should be ready by now
     //Clear garbage messages
 
-          powerupsim900();
+   powerupsim900();
             
-    delay(5000);
     DeleteAllMessagesBootup();
+    //ActivateSleep_mode();
     p("Ready");
 }
 
@@ -247,6 +252,26 @@ void DeleteAllMessagesBootup(){
   
  }
 
+void ActivateSleep_mode(){
+    //alternative from http://forum.arduino.cc/index.php?topic=106721.0 and https://www.soselectronic.cz/productdata/13/78/09/137809/SIM900R.pdf
+    // activate sleep mode
+    mySerial.println("AT+CSCLK=2"); //2:Module decides itself if go to sleep mode if no data on serial port.
+    delay(500);
+    //tipper denne kan lage en bug?
+    while (mySerial.available() != 0){
+      Serial.write(mySerial.read());
+    }
+
+}
+void poweroffsim900(){
+//make shure shield is ready to recive
+  mySerial.println("AT");
+  delay(1000);
+  
+  mySerial.println("AT+CPOWD=1");
+  delay(500);
+}
+
 void powerupsim900(){
     p("powering shield on");
            pinMode(9, OUTPUT); 
@@ -255,7 +280,7 @@ void powerupsim900(){
          digitalWrite(9,HIGH);
          delay(2000);
          digitalWrite(9,LOW);
-         delay(3000);
+         delay(7000);
   }
  void p(String string){
   Serial.println(string);
