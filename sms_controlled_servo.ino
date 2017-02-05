@@ -51,7 +51,7 @@ void setup()
    powerupsim900();
             
     DeleteAllMessagesBootup();
-    //ActivateSleep_mode();
+    ActivateSleep_mode();
     p("Ready");
 }
 
@@ -258,10 +258,7 @@ void ActivateSleep_mode(){
     mySerial.println("AT+CSCLK=2"); //2:Module decides itself if go to sleep mode if no data on serial port.
     delay(500);
     //tipper denne kan lage en bug?
-    while (mySerial.available() != 0){
-      Serial.write(mySerial.read());
-    }
-
+   
 }
 void poweroffsim900(){
 //make shure shield is ready to recive
