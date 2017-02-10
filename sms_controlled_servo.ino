@@ -67,6 +67,7 @@ void setup()
 
 void loop()
 {
+    
     char SerialInByte;
 
    //relay sersial to sim900
@@ -74,7 +75,7 @@ void loop()
      mySerial.write(Serial.read());
     }
 
-if (mySerial.available()){
+/*if (mySerial.available()){
   while(mySerial.available()){
     simmbuffer[bindex++]=mySerial.read();
          if(bindex == 64)break;
@@ -86,10 +87,10 @@ if (mySerial.available()){
   }
   bindex = 0;
 }
-   
-    //if(Serial.available())
+*/   
+    if(Serial.available())
     {
-       //mySerial.print((unsigned char)Serial.read());
+       mySerial.write((unsigned char)Serial.read());
      }  
     else if(mySerial.available())
     {
