@@ -26,8 +26,12 @@ int ledPin = 5;
 int shield_powered_on = 0;
 int SERVO_PIN = 14;
 
+unsigned char simmbuffer[64];
+int bindex=0;
+
 void setup()
-{ p("booting");
+{ 
+  p("booting");
   mySerial.begin(19200);               // the GPRS baud rate   
   mySerial.print("\r");
   delay(1000);
@@ -42,16 +46,22 @@ void setup()
 
   //make shure shield is off
 
+  //delay(10000);
+
   
-    poweroffsim900();
+  
+    //poweroffsim900();
   
     //gms shield  should be ready by now
     //Clear garbage messages
 
    powerupsim900();
-            
+
+    
+    
     DeleteAllMessagesBootup();
     ActivateSleep_mode();
+
     p("Ready");
 }
 
@@ -59,15 +69,29 @@ void loop()
 {
     char SerialInByte;
 
-    //relay sersial to sim900
-    if (Serial.available())
+   //relay sersial to sim900
+    if (Serial.available()){
      mySerial.write(Serial.read());
     }
-    if(Serial.available())
+
+if (mySerial.available()){
+  while(mySerial.available()){
+    simmbuffer[bindex++]=mySerial.read();
+         if(bindex == 64)break;
+      }
+    Serial.write(simmbuffer,bindex);
+    for (int i=0; i<bindex;i++){
+    simmbuffer[i]=NULL;
+  
+  }
+  bindex = 0;
+}
+   
+    //if(Serial.available())
     {
-       mySerial.print((unsigned char)Serial.read());
+       //mySerial.print((unsigned char)Serial.read());
      }  
-    else  if(mySerial.available())
+    else if(mySerial.available())
     {
         char SerialInByte;
         SerialInByte = (unsigned char)mySerial.read();
@@ -86,6 +110,7 @@ void loop()
         if( SerialInByte == 13 ){
           // EN: Store the char into the message buffer
           // FR: Stocké le caractère dans le buffer de message
+         // p("debug: going into processgprsmessage"+msg);
           ProcessGprsMsg();
          }
          if( SerialInByte == 10 ){
@@ -179,11 +204,16 @@ void ClearGprsMsg(){
 // EN: interpret the GPRS shield message and act appropiately
 // FR: interprete le message du GPRS shield et agit en conséquence
 void ProcessGprsMsg() {
+  p("----------");
   Serial.println("");
   Serial.print( "GPRS Message: [" );
   Serial.print( msg );
   Serial.println( "]" );
+  
 
+  if( msg.indexOf( "POWER DOWN" ) >= 0 ){
+    powerupsim900();
+    }
   if( msg.indexOf( "Call Ready" ) >= 0 ){
      Serial.println( "*** GPRS Shield registered on Mobile Network ***" );
      GprsTextModeSMS();
@@ -245,6 +275,8 @@ void ProcessGprsMsg() {
   // EN: Always clear the flag
   // FR: Toujours mettre le flag à 0
   SmsContentFlag = 0; 
+  p("----------");
+  p("----------");
 }
 void delSMS() {
   mySerial.print("AT+CMGD=");
@@ -266,6 +298,7 @@ void ActivateSleep_mode(){
 }
 void poweroffsim900(){
 //make shure shield is ready to recive
+ p("powering shield off");
   mySerial.println("AT");
   delay(1000);
   
@@ -281,7 +314,7 @@ void powerupsim900(){
          digitalWrite(9,HIGH);
          delay(2000);
          digitalWrite(9,LOW);
-         delay(7000);
+         
   }
  void p(String string){
   Serial.println(string);
