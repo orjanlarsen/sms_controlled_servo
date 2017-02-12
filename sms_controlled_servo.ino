@@ -215,6 +215,23 @@ void ProcessGprsMsg() {
   if( msg.indexOf( "POWER DOWN" ) >= 0 ){
     powerupsim900();
     }
+    
+  if( msg.indexOf( "RING" ) >= 0 ){
+    Serial.println("-----Skru på------");
+    
+    //turnon
+    servo1.attach(SERVO_PIN);
+    servo1.write(SERVO_ON_POSITION);
+    delay(1000);
+    servo1.write(SERVO_NEUTRAL_POSITION);
+    delay(1000);
+    servo1.detach();
+    mySerial.println("AT+CHUP");
+    
+
+
+    
+    }
   if( msg.indexOf( "Call Ready" ) >= 0 ){
      Serial.println( "*** GPRS Shield registered on Mobile Network ***" );
      GprsTextModeSMS();
@@ -285,7 +302,12 @@ void delSMS() {
 }  
 
 void DeleteAllMessagesBootup(){
+  
+  delay(7000);
+  mySerial.println("AT");
+  delay(1000);
   mySerial.println("AT+CMGD=1,4");
+  delay(1000);
   
  }
 
@@ -300,6 +322,7 @@ void ActivateSleep_mode(){
 void poweroffsim900(){
 //make shure shield is ready to recive
  p("powering shield off");
+ 
   mySerial.println("AT");
   delay(1000);
   
