@@ -1,3 +1,5 @@
+#include <SimpleTimer.h>
+
 
 #include <SoftwareSerial.h>
 #include <Servo.h>
@@ -26,6 +28,12 @@ int ledPin = 5;
 int shield_powered_on = 0;
 int SERVO_PIN = 14;
 
+
+// the timer object
+SimpleTimer timer;
+
+
+
 void setup()
 { p("booting");
   mySerial.begin(19200);               // the GPRS baud rate   
@@ -44,14 +52,13 @@ void setup()
 
   
     poweroffsim900();
-  
-    //gms shield  should be ready by now
-    //Clear garbage messages
-
    powerupsim900();
             
-    DeleteAllMessagesBootup();
+    DeleteAllMessages();
     ActivateSleep_mode();
+
+    
+    timer.setInterval(10000, makeshureserialdontdie);
     p("Ready");
 }
 
@@ -61,7 +68,7 @@ void loop()
 
     if(Serial.available())
     {
-       mySerial.print((unsigned char)Serial.read());
+       mySerial.write((unsigned char)Serial.read());
      }  
     else  if(mySerial.available())
     {
@@ -102,6 +109,7 @@ void loop()
           
       }
        */ 
+  timer.run();
 }
 
 // EN: Make action based on the content of the SMS. 
@@ -185,6 +193,8 @@ void ProcessGprsMsg() {
      GprsTextModeSMS();
   }
 
+
+
   // EN: unsolicited message received when getting a SMS message
   // FR: Message non sollicité quand un SMS arrive
   if( msg.indexOf( "+CMTI" ) >= 0 ){
@@ -235,6 +245,8 @@ void ProcessGprsMsg() {
     Serial.println( "*** END OF SMS MESSAGE ***" );
     ProcessSms( msg );
     delSMS();
+    DeleteAllMessages();
+    
   }
 
   ClearGprsMsg();
@@ -247,7 +259,7 @@ void delSMS() {
   mySerial.println(SmsStorePos);
 }  
 
-void DeleteAllMessagesBootup(){
+void DeleteAllMessages(){
   mySerial.println("AT+CMGD=1,4");
   
  }
@@ -255,8 +267,10 @@ void DeleteAllMessagesBootup(){
 void ActivateSleep_mode(){
     //alternative from http://forum.arduino.cc/index.php?topic=106721.0 and https://www.soselectronic.cz/productdata/13/78/09/137809/SIM900R.pdf
     // activate sleep mode
-    mySerial.println("AT+CSCLK=2"); //2:Module decides itself if go to sleep mode if no data on serial port.
-    delay(500);
+   // mySerial.println("AT+CSCLK=2"); //2:Module decides itself if go to sleep mode if no data on serial port.
+   
+     mySerial.println("AT+CSCLK=0"); //2:Module decides itself if go to sleep mode if no data on serial port.
+   delay(500);
     //tipper denne kan lage en bug?
    
 }
@@ -282,3 +296,9 @@ void powerupsim900(){
  void p(String string){
   Serial.println(string);
   }
+
+void makeshureserialdontdie() {
+  
+  mySerial.println("AT+CFUN=1");
+  
+}
