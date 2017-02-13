@@ -193,6 +193,10 @@ void ProcessGprsMsg() {
      GprsTextModeSMS();
   }
 
+  if( msg.indexOf( "NORMAL POWER DOW" ) >= 0 ){
+    powerupsim900();
+  }
+
 
 
   // EN: unsolicited message received when getting a SMS message
