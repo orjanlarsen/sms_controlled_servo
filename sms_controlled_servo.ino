@@ -197,6 +197,20 @@ void ProcessGprsMsg() {
     powerupsim900();
   }
 
+  if( msg.indexOf( "RING" ) >= 0 ){
+    Serial.println("-----Skru på------");
+    
+    //turnon
+    servo1.attach(SERVO_PIN);
+    servo1.write(SERVO_ON_POSITION);
+    delay(1000);
+    servo1.write(SERVO_NEUTRAL_POSITION);
+    delay(1000);
+    servo1.detach();
+    mySerial.println("ATH");
+ 
+  }
+
 
 
   // EN: unsolicited message received when getting a SMS message
